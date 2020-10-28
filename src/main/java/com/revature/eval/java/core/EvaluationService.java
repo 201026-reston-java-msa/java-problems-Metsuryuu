@@ -1,6 +1,7 @@
 package com.revature.eval.java.core;
 
 import java.time.temporal.Temporal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,8 +15,15 @@ public class EvaluationService {
 	 * @return
 	 */
 	public String reverse(String string) {
+		char[] c = string.toCharArray();
+		char[] result = new char[c.length];
 		
-		return "";
+		for(int i = 0; i < c.length; i++) {
+			result[i] = c[c.length-i-1];	//counts in reverse order.
+		}
+		
+		string = new String(result);
+		return string;
 	}
 
 	/**
@@ -27,8 +35,15 @@ public class EvaluationService {
 	 * @return
 	 */
 	public String acronym(String phrase) {
-		// TODO Write an implementation for this method declaration
-		return null;
+		String[] hold = phrase.split("[ -]+");	
+		StringBuffer acronym = new StringBuffer();
+		
+		for(String s : hold) {
+			acronym.append(s.substring(0,1).toUpperCase());
+		}
+		phrase = acronym.toString();
+		
+		return phrase;
 	}
 
 	/**
@@ -81,18 +96,28 @@ public class EvaluationService {
 		}
 
 		public boolean isEquilateral() {
-			// TODO Write an implementation for this method declaration
-			return false;
+			if(this.sideOne == this.sideTwo && this.sideTwo == this.sideThree) {	//no need to compare all sides to each other
+				return true;														//as equality was already proven by arg.
+			}else {
+				return false;
+			}
+			
 		}
 
 		public boolean isIsosceles() {
-			// TODO Write an implementation for this method declaration
-			return false;
+			if(this.sideOne == this.sideTwo || this.sideOne == this.sideThree || this.sideTwo == this.sideThree) {
+				return true;
+			}else {
+				return false;
+			}
 		}
 
 		public boolean isScalene() {
-			// TODO Write an implementation for this method declaration
-			return false;
+			if(this.sideOne != this.sideTwo && this.sideOne != this.sideThree && this.sideTwo != this.sideThree) {
+				return true;
+			}else {
+				return false;
+			}
 		}
 
 	}
@@ -113,8 +138,48 @@ public class EvaluationService {
 	 * @return
 	 */
 	public int getScrabbleScore(String string) {
-		// TODO Write an implementation for this method declaration
-		return 0;
+		
+		char[] letters = string.toCharArray();
+		int score = 0;
+		
+		for(char letter : letters) {
+			switch(letter) {
+				case 'd':	//chain the cases together based on score.
+				case 'g':	//d and g have the same score so case 'd' will pass to case 'g'.
+					score += 2;
+					break;
+				case 'b':
+				case 'c':
+				case 'm':
+				case 'p':
+					score += 3;
+					break;
+				case 'f':
+				case 'h':
+				case 'v':
+				case 'w':
+				case 'y':
+					score += 4;
+					break;
+				case 'k':
+					score += 5;
+					break;
+				case 'j':
+				case 'x':
+					score += 8;
+					break;
+				case 'q':
+				case 'z':
+					score += 10;
+					break;
+				default:
+					++score;
+					break;
+			}
+		}
+		
+		return score;
+		
 	}
 
 	/**
@@ -148,23 +213,50 @@ public class EvaluationService {
 	 * Note: As this exercise only deals with telephone numbers used in
 	 * NANP-countries, only 1 is considered a valid country code.
 	 */
-	public String cleanPhoneNumber(String string) {
-		// TODO Write an implementation for this method declaration
-		return null;
+	public String cleanPhoneNumber(String string) {	
+		
+		String[] clean = string.split("[- +().,]+");	//remove any and all special characters in the sequence.
+		StringBuffer finished = new StringBuffer();
+		
+		for(String s : clean){
+			if(s.matches("^[0-9]+$")) {	//ensure only numerics are accepted.
+				finished.append(s);
+			}else{
+				throw new IllegalArgumentException();
+			}
+			
+		}
+		
+		string = finished.toString();
+		
+//		if(string.substring(0,1).equals("1")) { if the +1 was part of the test cases, this would remove it.
+//			string = string.substring(1,string.length()-1);	
+//		}
+		
+		if(string.matches("[2-9]{1}+[0-9]{2}+[2-9]{1}+[0-9]{2}+[0-9]{4}")) {	//check to make sure there are only 10 numbers in the right order.
+			return string;
+		}else {
+			throw new IllegalArgumentException();
+		}
 	}
 
 	/**
 	 * 6. Given a phrase, count the occurrences of each word in that phrase.
 	 * 
-	 * For example for the input "olly olly in come free" olly: 2 in: 1 come: 1
+	 * For example for the input "olly olly in come free" olly: 2 in: 1 come: 1 
 	 * free: 1
 	 * 
 	 * @param string
 	 * @return
 	 */
 	public Map<String, Integer> wordCount(String string) {
-		// TODO Write an implementation for this method declaration
-		return null;
+		String[] words = string.split("[- +\\,]+");	//TODO this will need to be refined, I believe.
+		Map<String, Integer> count = new HashMap<>();
+		
+		for(String word : words) {
+			count.compute(word, (k,v) -> v == null ? 1 : ++v);
+		}
+		return count;
 	}
 
 	/**
@@ -206,7 +298,7 @@ public class EvaluationService {
 		private List<T> sortedList;
 
 		public int indexOf(T t) {
-			// TODO Write an implementation for this method declaration
+			// TODO Write an implementation for this method declaration (This question was dropped, but you can do it.)
 			return 0;
 		}
 
@@ -443,7 +535,7 @@ public class EvaluationService {
 	 * @return
 	 */
 	public Temporal getGigasecondDate(Temporal given) {
-		// TODO Write an implementation for this method declaration
+		// TODO Write an implementation for this method declaration (Dropped, try to complete it anyway)
 		return null;
 	}
 
