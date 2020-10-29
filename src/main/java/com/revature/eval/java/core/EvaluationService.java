@@ -1,6 +1,7 @@
 package com.revature.eval.java.core;
 
 import java.time.temporal.Temporal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,13 +17,12 @@ public class EvaluationService {
 	 */
 	public String reverse(String string) {
 		char[] c = string.toCharArray();
-		char[] result = new char[c.length];
+		string = "";	//reset the string to avoid creating a new variable.
 		
 		for(int i = 0; i < c.length; i++) {
-			result[i] = c[c.length-i-1];	//counts in reverse order.
+			string += c[c.length-i-1];	//counts in reverse order and place it in the string.
 		}
-		
-		string = new String(result);
+
 		return string;
 	}
 
@@ -35,13 +35,13 @@ public class EvaluationService {
 	 * @return
 	 */
 	public String acronym(String phrase) {
-		String[] hold = phrase.split("[ -]+");	
+		String[] hold = phrase.split("[ -]+");	//split based on whitespace and hyphens.	
 		StringBuffer acronym = new StringBuffer();
 		
 		for(String s : hold) {
-			acronym.append(s.substring(0,1).toUpperCase());
+			acronym.append(s.substring(0,1).toUpperCase());	//capitalize the first letter and store it.
 		}
-		phrase = acronym.toString();
+		phrase = acronym.toString();	//put the acronym back in the string.
 		
 		return phrase;
 	}
@@ -97,8 +97,8 @@ public class EvaluationService {
 
 		public boolean isEquilateral() {
 			if(this.sideOne == this.sideTwo && this.sideTwo == this.sideThree) {	//no need to compare all sides to each other
-				return true;														//as equality was already proven by arg.
-			}else {
+				return true;														//as equality was already proven by first arg
+			}else {																	//and all sides must be equal.
 				return false;
 			}
 			
@@ -143,11 +143,15 @@ public class EvaluationService {
 		int score = 0;
 		
 		for(char letter : letters) {
+			/*
+			 * Based on the test cases, this is sufficient, an if() could be used to ensure
+			 * that it is indeed an alphabet with Character.isAlphabetic().
+			*/
 			switch(letter) {
 				case 'd':	//chain the cases together based on score.
 				case 'g':	//d and g have the same score so case 'd' will pass to case 'g'.
 					score += 2;
-					break;
+					break;	//add the respective score and move onto the next letter.
 				case 'b':
 				case 'c':
 				case 'm':
@@ -172,8 +176,8 @@ public class EvaluationService {
 				case 'z':
 					score += 10;
 					break;
-				default:
-					++score;
+				default:	//every other letter not explicitly mentioned.
+					++score;	//only worth one point.
 					break;
 			}
 		}
@@ -222,21 +226,20 @@ public class EvaluationService {
 			if(s.matches("^[0-9]+$")) {	//ensure only numerics are accepted.
 				finished.append(s);
 			}else{
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException();	//if non-numeric, throw an exception.
 			}
-			
 		}
 		
 		string = finished.toString();
 		
-//		if(string.substring(0,1).equals("1")) { if the +1 was part of the test cases, this would remove it.
+//		if(string.substring(0,1).equals("1")) { 
 //			string = string.substring(1,string.length()-1);	
-//		}
+//		}	//if the +1 was part of the test cases, this would remove it.
 		
 		if(string.matches("[2-9]{1}+[0-9]{2}+[2-9]{1}+[0-9]{2}+[0-9]{4}")) {	//check to make sure there are only 10 numbers in the right order.
 			return string;
 		}else {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException();	//if not, throw an exception.
 		}
 	}
 
@@ -254,6 +257,7 @@ public class EvaluationService {
 		Map<String, Integer> count = new HashMap<>();
 		
 		for(String word : words) {
+			//set the value to 1 for a new key, or add to the existing value.
 			count.compute(word, (k,v) -> v == null ? 1 : ++v);
 		}
 		return count;
@@ -335,8 +339,26 @@ public class EvaluationService {
 	 * @return
 	 */
 	public String toPigLatin(String string) {
-		// TODO Write an implementation for this method declaration
-		return null;
+		String[] words = string.split(" ");
+		string = "";
+		
+		for(String word : words) {
+			//this could also be implemented via a switch as opposed to if-else
+			if(word.matches("^[aeiouAEIOU].+")) {	//if the first letter is a vowel.
+				word = word+"ay";	//add 'ay' to the end.
+			}else if(word.matches("^ch[a-z].+|th[a-z].+|qu[a-z].+")) {	//more sounds possible, kept short for proof of concept.
+				word = word.substring(2,word.length())+ word.substring(0,2)+"ay";	//add the beginning to the end and add 'ay'.
+			}else if(word.matches("^sch[a-z].+")) {
+				word = word.substring(3,word.length())+ word.substring(0,3)+"ay";
+			}else {
+				word = word.substring(1,word.length())+word.substring(0,1)+"ay";
+			}
+			string += word + " ";	//add the fixed word to the string.
+		}
+		
+		string.trim();	//get rid of any ending whitespace.
+		
+		return string;
 	}
 
 	/**
@@ -355,8 +377,21 @@ public class EvaluationService {
 	 * @return
 	 */
 	public boolean isArmstrongNumber(int input) {
-		// TODO Write an implementation for this method declaration
-		return false;
+
+		String num = String.valueOf(input);
+		char[] numbers = num.toCharArray();	//get the individual digits.
+		input = 0;	//less variables, save memory, why not?
+		
+		for(char number : numbers) {
+			//calculates the summation of the powers of the digits.
+			input += Math.pow(Character.getNumericValue(number), numbers.length);
+		}
+		
+		if(input == Integer.parseInt(num)) {	//if the summation is equal to the number, it is an Armstrong number.
+			return true;	
+		}else {
+			return false;
+		}
 	}
 
 	/**
@@ -370,8 +405,25 @@ public class EvaluationService {
 	 * @return
 	 */
 	public List<Long> calculatePrimeFactorsOf(long l) {
-		// TODO Write an implementation for this method declaration
-		return null;
+		List<Long> primes = new ArrayList<>();
+		
+		while(l % 2 == 0) {	//this alone will take care of all even numbers
+			primes.add(2L);	//as all even numbers are divisible by 2.
+			l /= 2;
+		}
+		
+		for(int i = 3; i <= l/2; i += 2) {	//only need to test odd numbers (hence +=2 instead of ++).
+			while(l % i == 0) {
+				primes.add((long) i);
+				l /= i;
+			}
+		}
+		
+		if(l > 2) {	//by this point, l should either be 2 or 1, otherwise, it was a prime.
+			primes.add(l);
+		}
+				
+		return primes;
 	}
 
 	/**
@@ -409,10 +461,43 @@ public class EvaluationService {
 		}
 
 		public String rotate(String string) {
-			// TODO Write an implementation for this method declaration
-			return null;
+			
+			char[] tocipher = string.toCharArray();
+			string = "";
+			
+			for(char letter : tocipher) {
+				
+				if(Character.isAlphabetic(letter)) {	//Ensure only alphabets are altered.
+					
+					if(Character.isUpperCase(letter)) { 
+						
+						/*
+						 * The following calculations are based on ASCII mathematics 
+						 * to create a modular field of the alphabet (mod 26) as opposed to 
+						 * all ASCII characters.
+						*/
+						
+						letter = (char)(((int)letter + key - 65) % 26 + 65); 
+						
+					}else {
+						
+						//same as above, but a field for lowercase alphabets.
+						letter = (char)(((int)letter + key - 97) % 26 + 97);
+						
+					}
+				}
+				
+				/*
+				 * Put the completed cipher back in the string one character at a time. 
+				 * This will be done for each char, including whitespace, numerics, 
+				 * and special characters/punctuation. 
+				*/
+				
+				string += letter;	
+			}
+			
+			return string;
 		}
-
 	}
 
 	/**
@@ -428,8 +513,51 @@ public class EvaluationService {
 	 * @return
 	 */
 	public int calculateNthPrime(int i) {
-		// TODO Write an implementation for this method declaration
-		return 0;
+		
+		//Easiest will be to implement the Sieve of Eratosthenes.
+		int max = 1000005;	//I had looked this value up, Integer.MAX_VALUE was too large.
+		
+		ArrayList<Integer> primes = new ArrayList<>();
+		
+		boolean isPrime[] = new boolean[max];
+		
+		for(int j = 0; j < max; j++) {
+			isPrime[j] = true;
+			//the index is equal to the value it represents, i.e. isPrime[2] would be 2.
+			//The boolean value dictates whether or not it is prime.
+		}
+		
+		//begin at 2, the first prime number.
+		for(int x = 2; x * x < max; x++) {
+			
+			if(isPrime[x] == true) {
+				
+				//mark all multiples of the prime as non-prime, for obvious reasons.
+				for(int y = x*x; y < max; y += x) {
+					isPrime[y] = false;
+				}
+				
+			}
+			
+		}
+		
+		for(int z = 2; z < max; z++) {
+			//all remaining prime indexes will have a true value.
+			if(isPrime[z] == true) {
+				//add the index value.
+				primes.add(z);
+			}
+		}
+		
+		//return the prime at the position requested.
+		return primes.get(i-1);
+		
+		/*
+		 * Euler's sieve can achieve linear time, Eratosthenes' can achieve 
+		 * logarithmic time when properly implemented.
+		 * Other sieves do exist, but are computationally inferior:
+		 * https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
+		*/
 	}
 
 	/**
