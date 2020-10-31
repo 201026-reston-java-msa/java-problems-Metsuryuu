@@ -3,8 +3,11 @@ package com.revature.eval.java.core;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class EvaluationService {
 
@@ -139,7 +142,7 @@ public class EvaluationService {
 	 */
 	public int getScrabbleScore(String string) {
 		
-		char[] letters = string.toCharArray();
+		char[] letters = string.toLowerCase().toCharArray();
 		int score = 0;
 		
 		for(char letter : letters) {
@@ -219,7 +222,13 @@ public class EvaluationService {
 	 */
 	public String cleanPhoneNumber(String string) {	
 		
-		String[] clean = string.split("[- +().,]+");	//remove any and all special characters in the sequence.
+		string = string.replaceAll("[)(]+", "");
+		/*
+		 * I had needed to replace all parentheses first as they would leave
+		 * leading whitespace which would result in an error below.
+		 */
+		
+		String[] clean = string.split("[^\\d+]+");	//remove any and all special characters in the sequence.
 		StringBuffer finished = new StringBuffer();
 		
 		for(String s : clean){
@@ -230,11 +239,7 @@ public class EvaluationService {
 			}
 		}
 		
-		string = finished.toString();
-		
-//		if(string.substring(0,1).equals("1")) { 
-//			string = string.substring(1,string.length()-1);	
-//		}	//if the +1 was part of the test cases, this would remove it.
+		string = finished.toString();	//place the array back in the String.
 		
 		if(string.matches("[2-9]{1}+[0-9]{2}+[2-9]{1}+[0-9]{2}+[0-9]{4}")) {	//check to make sure there are only 10 numbers in the right order.
 			return string;
@@ -253,6 +258,9 @@ public class EvaluationService {
 	 * @return
 	 */
 	public Map<String, Integer> wordCount(String string) {
+		
+		string = string.replaceAll("\\n", "");
+		
 		String[] words = string.split("[- +\\,]+");	//TODO this will need to be refined, I believe.
 		Map<String, Integer> count = new HashMap<>();
 		
@@ -338,7 +346,7 @@ public class EvaluationService {
 	 * @param string
 	 * @return
 	 */
-	public String toPigLatin(String string) {
+	public String toPigLatin(String string) {	//TODO this has a problem with the final test, not sure why.
 		String[] words = string.split(" ");
 		string = "";
 		
@@ -356,7 +364,7 @@ public class EvaluationService {
 			string += word + " ";	//add the fixed word to the string.
 		}
 		
-		string.trim();	//get rid of any ending whitespace.
+		string = string.trim();	//get rid of any ending whitespace.
 		
 		return string;
 	}
@@ -514,6 +522,10 @@ public class EvaluationService {
 	 */
 	public int calculateNthPrime(int i) {
 		
+		if(i < 1) {
+			throw new IllegalArgumentException();
+		}
+		
 		//Easiest will be to implement the Sieve of Eratosthenes.
 		int max = 1000005;	//I had looked this value up, Integer.MAX_VALUE was too large.
 		
@@ -593,8 +605,39 @@ public class EvaluationService {
 		 * @return
 		 */
 		public static String encode(String string) {
-			// TODO Write an implementation for this method declaration
-			return null;
+			
+			//remove all punctuation and make lowercase.
+			string = string.replaceAll("\\p{Punct}", "").toLowerCase();
+			
+			char[] tocipher = string.toCharArray();
+			string = "";
+			int count = 0;
+			
+			for(char letter : tocipher) {
+				
+				if(Character.isAlphabetic(letter)) {	//Ensure only alphabets are altered.
+					
+					//effectively reverses the order of the alphabet, returning the proper cipher.
+					letter = (char) ('a'+('z'-letter));
+					
+				}else if(Character.isWhitespace(letter)){
+					//skip.
+					continue;
+				}	//everything else (digits) can be added directly.
+				
+				//keep a count to return ciphertext in blocks of five.
+				if(count < 5) {
+					string += letter;
+					count++;
+				}else {
+					//at the sixth letter, add a space...
+					string += " ";
+					string += letter;
+					count = 1;	//and reset the count.
+				}
+			}
+			
+			return string.trim();	//make sure no hanging whitespaces are returned.
 		}
 
 		/**
@@ -604,8 +647,25 @@ public class EvaluationService {
 		 * @return
 		 */
 		public static String decode(String string) {
-			// TODO Write an implementation for this method declaration
-			return null;
+			
+			char[] tocipher = string.toCharArray();
+			string = "";
+			
+			for(char letter : tocipher) {
+				
+				if(Character.isAlphabetic(letter)) {
+					
+					//just reverse it to decode.
+					letter = (char) ('z' + ('a'-letter));
+				}else if(Character.isWhitespace(letter)) {
+					//should still skip whitespace.
+					continue;
+				}
+				
+				string += letter;
+			}
+			
+			return string;
 		}
 	}
 
@@ -632,8 +692,35 @@ public class EvaluationService {
 	 * @return
 	 */
 	public boolean isValidIsbn(String string) {
-		// TODO Write an implementation for this method declaration
-		return false;
+
+		boolean valid = false;
+		char[] numbers = string.toCharArray();
+		int hold = 0;
+		int position = 10;	//keep track of the position for calculation.
+		
+		for(char number : numbers) {
+			if(Character.isDigit(number)) {
+				
+				//post-decrement operator used to cut down on lines.
+				hold += Character.getNumericValue(number) * position--;
+				
+			}else if(number == 'X') {	//checks for X and treats it as 10.
+				
+				hold += 10 * position--;
+				
+			}else if(Character.isAlphabetic(number)) {	
+				
+				//any other character would infer an invalid ISBN immediately; no need to continue.
+				return false;
+				
+			}
+		}
+		
+		if(hold % 11 == 0) {
+			valid = true;
+		}
+		
+		return valid;
 	}
 
 	/**
@@ -650,8 +737,41 @@ public class EvaluationService {
 	 * @return
 	 */
 	public boolean isPangram(String string) {
-		// TODO Write an implementation for this method declaration
-		return false;
+		
+		char[] letters = string.toLowerCase().toCharArray();
+		/*
+		 * A boolean array could be used in tandem with an int index associated with
+		 * the ASCII value of each alphabetical character...but a HashMap contains 
+		 * both of those things and the ability to use the Character directly.
+		 */
+		Map<Character, Boolean> table = new HashMap<>();
+		
+		for (char ch = 'a'; ch <= 'z'; ++ch) {
+			//load the HashMap will all alphabets.
+			table.put(ch, false);
+		}	  
+		
+		for(char letter : letters) {
+			
+			if(letter >= 'a' && letter <= 'z') {
+				
+				/*
+				 * Lambda expression to make the value of each Character true
+				 * if it existed in the string.
+				 */
+				table.compute(letter, (k,v) -> v == false ? true : true);	
+			}
+		}
+		
+		for(Map.Entry<Character, Boolean> entry : table.entrySet()) {
+			if(!entry.getValue()) {
+				//any letter which hasn't been explicitly mention will still be false.
+				return false;
+			}
+		}
+		
+		//if it hasn't returned false, then it would be true.
+		return true;
 	}
 
 	/**
@@ -681,8 +801,42 @@ public class EvaluationService {
 	 * @return
 	 */
 	public int getSumOfMultiples(int i, int[] set) {
-		// TODO Write an implementation for this method declaration
-		return 0;
+		
+		int sum = 0;
+		
+		/*
+		 * While there are two primary ways to solve this--checking each value
+		 * in the set modulo i and adding them to sum, or utilizing the lcm,
+		 * gcd, and the formula for all natural numbers up to n--Sets provide
+		 * a much simpler solution due to duplicate removal.
+		 */
+		Set<Integer> multiples = new HashSet<>();
+		
+		for(int number : set) {
+			
+			/*
+			 * Increase by the number to speed up the process while 
+			 * ensuring only multiples will be added.
+			 */
+			for(int j = 0; j < i; j += number) {
+				
+				//add each number to the Set; duplicates will not be added.
+				multiples.add(j);
+				
+			}
+		}
+		
+		for(int n : multiples) {
+			//finally, add everything to the sum.
+			sum += n;
+		}
+		/*
+		 * I had attempted to utilize the forEach() method in the Set interface
+		 * with a lambda expression, however, variables are effectively final
+		 * within lambdas.
+		 */
+		
+		return sum;
 	}
 
 	/**
@@ -722,7 +876,45 @@ public class EvaluationService {
 	 * @return
 	 */
 	public boolean isLuhnValid(String string) {
-		// TODO Write an implementation for this method declaration
+		
+		//remove all spaces.
+		string = string.replaceAll("\\s", "");
+		int sum = 0;
+				
+		//check if string is too short or non-numeric before any calculations.
+		if(string.length() <= 1 || !string.matches("[0-9]+")) {
+				
+			//early exit to reserve avoid wasting time and resources.
+			return false;
+					
+		}
+				
+		List<Integer> numbers = new LinkedList<>();
+				
+		//load the list with all the numbers in the string.
+		for(int i = string.length()-1; i >= 0; i--) {
+			numbers.add(Character.getNumericValue(string.charAt(i)));
+		}
+				
+		//complete the necessary Luhn calculations.
+		for(int i = 1; i < numbers.size(); i += 2) {
+					
+			numbers.set(i, numbers.get(i)*2);
+
+			if(numbers.get(i) > 9) {
+				numbers.set(i, numbers.get(i)-9);
+			}
+				
+		}
+			
+		for(int n : numbers) {
+			sum += n;
+		}
+						
+		if(sum % 10 == 0) {
+			return true;
+		}
+				
 		return false;
 	}
 
@@ -754,8 +946,52 @@ public class EvaluationService {
 	 * @return
 	 */
 	public int solveWordProblem(String string) {
-		// TODO Write an implementation for this method declaration
+		
+		Integer a = null;
+		Integer b = null;
+		
+		String[] hold = string.split("[ ?]+");
+		String s = "";
+		
+		for(String st : hold) {
+
+			if(st.matches("[-0-9]+")) {	//if the string is a numeric (including negatives).
+				
+				if(a == null) {	//assign a first.
+					a = Integer.parseInt(st);
+				}else {	//assign b after.
+					b = Integer.parseInt(st);
+				}
+				
+				//get the operation from the question and set a flag.
+			}else if(st.matches("plus")) {
+				s = "p";
+				
+			}else if(st.matches("multiplied")) {
+				s = "mu";
+				
+			}else if(st.matches("minus")) {
+				s = "mi";
+				
+			}else if(st.matches("divided")) {
+				s = "d";
+			}
+		}
+		
+		//use the flag in a switch and return the solution for the proper operation.
+		switch(s){
+			case "p":
+				return a+b;
+			case "mu":
+				return a*b;
+			case "mi":
+				return a-b;
+			case "d":
+				return a/b;
+		}
+		
 		return 0;
+
 	}
 
 }

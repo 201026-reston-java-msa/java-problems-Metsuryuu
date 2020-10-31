@@ -2,8 +2,11 @@ package com.revature.eval.java.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Driver {
 
@@ -20,55 +23,39 @@ public class Driver {
 		 *  exists for ease of testing. You can delete it after.
 		 */
 		
-		String s = "Let's eat, Grandma!";
-//		System.out.println(toPigLatin(s));
+		String s = "school";
+		System.out.println(toPigLatin(s));
 		
-		int n = 10001;
-		System.out.println(calculateNthPrime(n));
+		int[] n = {1};
+//		System.out.println(getScrabbleScore(s));
+
 		
 		
 	}
 	
-	static public int calculateNthPrime(int i) {
+	static public String toPigLatin(String string) {
+		String[] words = string.split(" ");
+		string = "";
 		
-		//Easiest will be to implement the Sieve of Eratosthenes.
-		int max = 1000005;
-		
-		ArrayList<Integer> primes = new ArrayList<>();
-		
-		boolean isPrime[] = new boolean[max];
-		
-		for(int j = 0; j < max; j++) {
-			isPrime[j] = true;
-			//the index is equal to the value it represents, i.e. isPrime[2] would be 2.
-			//The boolean value dictates whether or not it is prime.
-		}
-		
-		//begin at 2, the first prime number.
-		for(int x = 2; x * x < max; x++) {
-			
-			if(isPrime[x] == true) {
-				
-				//mark all multiples of the prime as non-prime, for obvious reasons.
-				for(int y = x*x; y < max; y += x) {
-					isPrime[y] = false;
-				}
-				
+		for(String word : words) {
+			//this could also be implemented via a switch as opposed to if-else
+			if(word.matches("^[aeiouAEIOU].+")) {	//if the first letter is a vowel.
+				word = word+"ay";	//add 'ay' to the end.
+			}else if(word.matches("^ch[a-z].+|th[a-z].+|qu[a-z].+")) {	//more sounds possible, kept short for proof of concept.
+				word = word.substring(2,word.length())+ word.substring(0,2)+"ay";	//add the beginning to the end and add 'ay'.
+			}else if(word.matches("^sch[a-z].+")) {
+				word = word.substring(3,word.length())+ word.substring(0,3)+"ay";
+			}else {
+				word = word.substring(1,word.length())+word.substring(0,1)+"ay";
 			}
 			
+			string += word + " ";	//add the fixed word to the string.
 		}
 		
-		for(int z = 2; z < max; z++) {
-			//all remaining prime indexes will have a true value.
-			if(isPrime[z] == true) {
-				//add the index value.
-				primes.add(z);
-			}
-		}
+		System.out.println(string+"hi");
 		
+		string.trim();	//get rid of any ending whitespace.
 		
-		return primes.get(i-1);
-		//Euler's sieve can achieve linear time, Eratosthenes' can achieve logarithmic time
-		//when properly implemented.
+		return string;
 	}
 }
